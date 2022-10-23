@@ -8,7 +8,7 @@ const __dirname = dirname(__filename);
 
 const module = {
   context: path.resolve(__dirname, 'src'),
-  mode: 'development',
+  mode: process.env.NODE_ENV || 'development',
   entry: './index.js',
   output: {
     filename: 'bundle.js',

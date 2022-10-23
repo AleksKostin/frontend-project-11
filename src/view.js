@@ -91,6 +91,15 @@ const renderFeeds = (feeds, elements, i18next) => {
   container.append(ul);
 };
 
+const renderModal = (elements, post) => {
+  const modalTitle = elements.modal.querySelector('.modal-title');
+  const modalBody = elements.modal.querySelector('.modal-body');
+  const btnFullArticle = elements.modal.querySelector('.full-article');
+  modalTitle.textContent = post.title;
+  modalBody.textContent = post.description;
+  btnFullArticle.setAttribute('href', post.link);
+};
+
 const renderPosts = (posts, elements, i18next, state) => {
   const { postsContainer } = elements;
   const { container, ul } = initialContainer(postsContainer, i18next, 'posts');
@@ -117,19 +126,23 @@ const renderPosts = (posts, elements, i18next, state) => {
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener noreferrer');
     a.textContent = post.title;
-    a.addEventListener('click', (e) => {
-      const aEl = e.target;
-      aEl.classList.add('fw-normal', 'link-secondary');
-      state.clickedLinks.push(aEl.getAttribute('href'));
+    a.addEventListener('click', () => {
+      a.classList.add('fw-normal', 'link-secondary');
+      state.clickedLinks.push(a.getAttribute('href'));
     });
 
     const button = document.createElement('button');
     button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
     button.setAttribute('type', 'button');
-    button.setAttribute('data-id', post.id);
-    button.setAttribute('data-bs-toggle', 'modal');
-    button.setAttribute('data-bs-target', '#modal');
-    button.textContent = i18next.t('openBtn');
+    button.dataset.bsToggle = 'modal';
+    button.dataset.bsTarget = '#modal';
+    button.dataset.id = post.id;
+    button.textContent = i18next.t('postBtn');
+    button.addEventListener('click', () => {
+      a.classList.add('fw-normal', 'link-secondary');
+      state.clickedLinks.push(a.getAttribute('href'));
+      renderModal(elements, post);
+    });
 
     li.append(a, button);
     return li;
