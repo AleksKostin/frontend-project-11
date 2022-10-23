@@ -1,3 +1,5 @@
+import onChange from 'on-change';
+
 const handleIsValid = (value, elements) => {
   const { inputField } = elements;
   if (value) {
@@ -89,7 +91,7 @@ const renderFeeds = (feeds, elements, i18next) => {
   container.append(ul);
 };
 
-const renderPosts = (posts, elements, i18next) => {
+const renderPosts = (posts, elements, i18next, state) => {
   const { postsContainer } = elements;
   const { container, ul } = initialContainer(postsContainer, i18next, 'posts');
 
@@ -103,14 +105,23 @@ const renderPosts = (posts, elements, i18next) => {
       'border-0',
       'border-end-0',
     );
-    console.log(Object.entries(post.link));
+
     const a = document.createElement('a');
-    a.classList.add('fw-bold');
+    if (state.clickedLinks.includes(post.link)) {
+      a.classList.add('fw-normal', 'link-secondary');
+    } else {
+      a.classList.add('fw-bold');
+    }
     a.setAttribute('href', post.link);
     a.setAttribute('data-id', post.id);
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener noreferrer');
     a.textContent = post.title;
+    a.addEventListener('click', (e) => {
+      const aEl = e.target;
+      aEl.classList.add('fw-normal', 'link-secondary');
+      state.clickedLinks.push(aEl.getAttribute('href'));
+    });
 
     const button = document.createElement('button');
     button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
@@ -128,7 +139,7 @@ const renderPosts = (posts, elements, i18next) => {
   container.append(ul);
 };
 
-export default (elements, i18next) => (path, value) => {
+export default (state, elements, i18next) => onChange(state, (path, value) => {
   switch (path) {
     case 'form.isValid':
       handleIsValid(value, elements);
@@ -143,9 +154,9 @@ export default (elements, i18next) => (path, value) => {
       renderFeeds(value, elements, i18next);
       break;
     case 'posts':
-      renderPosts(value, elements, i18next);
+      renderPosts(value, elements, i18next, state);
       break;
     default:
       break;
   }
-};
+});
