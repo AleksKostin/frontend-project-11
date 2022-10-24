@@ -1,8 +1,11 @@
 install:
 	npm ci
 
-publish:
-	npm publish --dry-run
+develop:
+	npx webpack serve --open
+
+build:
+	NODE_ENV=production npx webpack
 	
 lint:
 	npx eslint .
