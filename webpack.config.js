@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+
 import HTMLWebpackPlugin from 'html-webpack-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import { fileURLToPath } from 'url';
