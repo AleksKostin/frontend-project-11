@@ -18,7 +18,7 @@ const module = {
   },
   plugins: [
     new HTMLWebpackPlugin({
-      template: './index.html',
+      template: '../index.html',
     }),
     new CleanWebpackPlugin(),
   ],

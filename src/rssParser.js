@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 const rssParser = (rssData) => {
   const parser = new DOMParser();
   const parsedContent = parser.parseFromString(rssData, 'application/xml');
@@ -9,11 +7,9 @@ const rssParser = (rssData) => {
   const titleFeed = parsedContent.querySelector('title').textContent;
   const descriptionFeed = parsedContent.querySelector('description').textContent;
   const linkFeed = parsedContent.querySelector('link');
-  const feedId = _.uniqueId();
   const feed = {
     title: titleFeed,
     description: descriptionFeed,
-    id: feedId,
     url: linkFeed,
   };
 
@@ -22,13 +18,10 @@ const rssParser = (rssData) => {
     const titlePost = item.querySelector('title').textContent;
     const descriptionPost = item.querySelector('description').textContent;
     const linkPost = item.querySelector('link').textContent;
-    const postId = _.uniqueId();
     return {
       title: titlePost,
       description: descriptionPost,
       link: linkPost,
-      id: postId,
-      feedId,
     };
   });
 

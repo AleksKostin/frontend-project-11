@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 import i18next from 'i18next';
+import _ from 'lodash';
 import axios from 'axios';
 import watcher from './view.js';
 import resources from './locales/index.i18next.js';
@@ -51,7 +52,9 @@ const runApp = () => {
     feeds: [],
     posts: [],
     addedUrls: [],
-    clickedLinks: [],
+    uiState: {
+      clickedLinks: [],
+    },
   };
 
   const watchedState = watcher(state, elements, i18nextInstance);
@@ -70,10 +73,17 @@ const runApp = () => {
       .then((response) => {
         const content = rssParser(response.data.contents);
         watchedState.form.isValid = true;
-        watchedState.addedUrls.push(currentValue);
         watchedState.form.processState = 'success';
+        watchedState.addedUrls.push(currentValue);
+        const feedId = _.uniqueId();
+        content.feed.id = feedId;
+        const posts = content.posts.map((post) => ({
+          ...post,
+          id: _.uniqueId(),
+          feedId,
+        }));
         watchedState.feeds.unshift(content.feed);
-        watchedState.posts.push(...content.posts);
+        watchedState.posts.push(...posts);
       })
       .catch((er) => {
         watchedState.form.isValid = false;

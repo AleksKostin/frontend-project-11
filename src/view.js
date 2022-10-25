@@ -116,7 +116,7 @@ const renderPosts = (posts, elements, i18next, state) => {
     );
 
     const a = document.createElement('a');
-    if (state.clickedLinks.includes(post.link)) {
+    if (state.uiState.clickedLinks.includes(post.link)) {
       a.classList.add('fw-normal', 'link-secondary');
     } else {
       a.classList.add('fw-bold');
@@ -128,7 +128,7 @@ const renderPosts = (posts, elements, i18next, state) => {
     a.textContent = post.title;
     a.addEventListener('click', () => {
       a.classList.add('fw-normal', 'link-secondary');
-      state.clickedLinks.push(a.getAttribute('href'));
+      state.uiState.clickedLinks.push(a.getAttribute('href'));
     });
 
     const button = document.createElement('button');
@@ -140,7 +140,7 @@ const renderPosts = (posts, elements, i18next, state) => {
     button.textContent = i18next.t('postBtn');
     button.addEventListener('click', () => {
       a.classList.add('fw-normal', 'link-secondary');
-      state.clickedLinks.push(a.getAttribute('href'));
+      state.uiState.clickedLinks.push(a.getAttribute('href'));
       renderModal(elements, post);
     });
 
