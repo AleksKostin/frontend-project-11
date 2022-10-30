@@ -6,14 +6,16 @@ import watcher from './view.js';
 import resources from './locales/index.i18next.js';
 import rssParser from './rssParser.js';
 
-yup.setLocale({
-  string: {
-    url: 'notValidUrl',
-  },
-  mixed: {
-    notOneOf: 'notOneOf',
-  },
-});
+const setLocale = () => (
+  yup.setLocale({
+    string: {
+      url: 'notValidUrl',
+    },
+    mixed: {
+      notOneOf: 'notOneOf',
+    },
+  })
+);
 
 const getRssContent = (url) => {
   const newUrl = new URL('https://allorigins.hexlet.app/get');
@@ -21,6 +23,12 @@ const getRssContent = (url) => {
   newUrl.searchParams.set('url', url);
   return axios.get(newUrl);
 };
+
+const setPostsId = (posts, feedId) => posts.map((post) => ({
+  ...post,
+  id: _.uniqueId(),
+  feedId,
+}));
 
 const runApp = () => {
   const defaultLang = 'ru';
@@ -53,7 +61,8 @@ const runApp = () => {
     posts: [],
     addedUrls: [],
     uiState: {
-      clickedLinks: [],
+      clickedLinksId: new Set(),
+      modal: null,
     },
   };
 
@@ -77,11 +86,8 @@ const runApp = () => {
         watchedState.addedUrls.push(currentValue);
         const feedId = _.uniqueId();
         content.feed.id = feedId;
-        const posts = content.posts.map((post) => ({
-          ...post,
-          id: _.uniqueId(),
-          feedId,
-        }));
+        content.feed.url = currentValue;
+        const posts = setPostsId(content.posts, feedId);
         watchedState.feeds.unshift(content.feed);
         watchedState.posts.push(...posts);
       })
@@ -98,21 +104,30 @@ const runApp = () => {
       });
   });
 
+  elements.postsContainer.addEventListener('click', (event) => {
+    const el = event.target;
+    const currentPost = watchedState.posts.find((post) => post.id === el.dataset.id);
+    watchedState.uiState.modal = currentPost;
+    watchedState.uiState.clickedLinksId.add(el.dataset.id);
+  });
+
   const updateRssPosts = () => {
-    watchedState.addedUrls.forEach((url) => {
-      getRssContent(url)
+    const promises = watchedState.feeds.map((feed) => (
+      getRssContent(feed.url)
         .then((response) => {
           const parseContent = rssParser(response.data.contents);
           const { posts } = parseContent;
           const oldLinksPosts = watchedState.posts.map((post) => post.link);
-          const newRssPosts = posts.filter((post) => !oldLinksPosts.includes(post.link));
-          watchedState.posts.unshift(...newRssPosts);
+          const newPosts = posts.filter((post) => !oldLinksPosts.includes(post.link));
+          const newPostsWithId = setPostsId(newPosts, feed.id);
+          watchedState.posts.unshift(...newPostsWithId);
         })
-        .catch((error) => new Error(error));
-    });
-    setTimeout(updateRssPosts, 5000);
+        .catch((error) => new Error(error))
+    ));
+    Promise.all(promises).finally(() => setTimeout(() => updateRssPosts(), 5000));
   };
 
+  setLocale();
   updateRssPosts();
 };
 

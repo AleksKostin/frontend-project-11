@@ -91,7 +91,7 @@ const renderFeeds = (feeds, elements, i18next) => {
   container.append(ul);
 };
 
-const renderModal = (elements, post) => {
+const renderModal = (post, elements) => {
   const modalTitle = elements.modal.querySelector('.modal-title');
   const modalBody = elements.modal.querySelector('.modal-body');
   const btnFullArticle = elements.modal.querySelector('.full-article');
@@ -116,20 +116,16 @@ const renderPosts = (posts, elements, i18next, state) => {
     );
 
     const a = document.createElement('a');
-    if (state.uiState.clickedLinks.includes(post.link)) {
+    if (state.uiState.clickedLinksId.has(post.id)) {
       a.classList.add('fw-normal', 'link-secondary');
     } else {
       a.classList.add('fw-bold');
     }
     a.setAttribute('href', post.link);
-    a.setAttribute('data-id', post.id);
+    a.dataset.id = post.id;
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener noreferrer');
     a.textContent = post.title;
-    a.addEventListener('click', () => {
-      a.classList.add('fw-normal', 'link-secondary');
-      state.uiState.clickedLinks.push(a.getAttribute('href'));
-    });
 
     const button = document.createElement('button');
     button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
@@ -138,11 +134,6 @@ const renderPosts = (posts, elements, i18next, state) => {
     button.dataset.bsTarget = '#modal';
     button.dataset.id = post.id;
     button.textContent = i18next.t('postBtn');
-    button.addEventListener('click', () => {
-      a.classList.add('fw-normal', 'link-secondary');
-      state.uiState.clickedLinks.push(a.getAttribute('href'));
-      renderModal(elements, post);
-    });
 
     li.append(a, button);
     return li;
@@ -150,6 +141,14 @@ const renderPosts = (posts, elements, i18next, state) => {
 
   ul.append(...liElements);
   container.append(ul);
+};
+
+const renderClickedLinks = (linksId) => {
+  linksId.forEach((id) => {
+    const a = document.querySelector(`a[data-id="${id}"]`);
+    a.classList.remove('fw-bold');
+    a.classList.add('fw-normal', 'link-secondary');
+  });
 };
 
 export default (state, elements, i18next) => onChange(state, (path, value) => {
@@ -168,6 +167,12 @@ export default (state, elements, i18next) => onChange(state, (path, value) => {
       break;
     case 'posts':
       renderPosts(value, elements, i18next, state);
+      break;
+    case 'uiState.clickedLinksId':
+      renderClickedLinks(value);
+      break;
+    case 'uiState.modal':
+      renderModal(value, elements);
       break;
     default:
       break;

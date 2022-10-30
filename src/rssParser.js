@@ -6,11 +6,9 @@ const rssParser = (rssData) => {
   }
   const titleFeed = parsedContent.querySelector('title').textContent;
   const descriptionFeed = parsedContent.querySelector('description').textContent;
-  const linkFeed = parsedContent.querySelector('link');
   const feed = {
     title: titleFeed,
     description: descriptionFeed,
-    url: linkFeed,
   };
 
   const items = parsedContent.querySelectorAll('item');
